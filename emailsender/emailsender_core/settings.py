@@ -112,7 +112,7 @@ except ValueError as e:
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://{os.environ.get('DATABASE_USER')}:{os.environ.get('DATABASE_PASSWORD')}@{os.environ.get('DATABASE_HOST')}:{database_port}/{os.environ.get('DATABASE_NAME')}", 
+        default=f"postgres://{os.environ.get('DATABASE_USER')}:{os.environ.get('DATABASE_PASSWORD')}@{os.environ.get('DATABASE_HOST','localhost')}:{database_port}/{os.environ.get('DATABASE_NAME')}", 
         conn_max_age=600,
         conn_health_checks=True,
     )
