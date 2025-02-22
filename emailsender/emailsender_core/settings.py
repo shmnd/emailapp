@@ -13,7 +13,7 @@ import os,dj_database_url,warnings,ast
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
-
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -31,16 +31,13 @@ def get_bool_from_env(name, default_value):
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG: bool = get_bool_from_env("DEBUG", False)
+DEBUG = config('DEBUG', cast=bool)
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY and DEBUG:
+SECRET_KEY = config('SECRET_KEY')
+if not SECRET_KEY:
     warnings.warn("SECRET_KEY not configured, using a random temporary key.")
     SECRET_KEY = get_random_secret_key()
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -112,12 +109,10 @@ except ValueError as e:
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://{os.environ.get('DATABASE_USER')}:{os.environ.get('DATABASE_PASSWORD')}@{os.environ.get('DATABASE_HOST','localhost')}:{database_port}/{os.environ.get('DATABASE_NAME')}", 
+        default=f"postgresql://{config('DATABASE_USER')}:{config('DATABASE_PASSWORD')}@{config('DATABASE_HOST', 'localhost')}:{config('DATABASE_PORT', '5432')}/{config('DATABASE_NAME')}",
         conn_max_age=600,
         conn_health_checks=True,
     )
-    
-    
 }
 
 # Password validation
@@ -164,24 +159,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 """ EMAIL CONFIGURATIONS"""
 
 
-EMAIL_HOST_USER       = os.environ.get('EMAIL_HOST_USER') 
-EMAIL_HOST_PASSWORD   = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER       = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD   = config('EMAIL_HOST_PASSWORD')
 
-EMAIL_BACKEND         = 'django.core.mail.backends.smtp.EmailBackend' 
-EMAIL_HOST            = os.environ.get('EMAIL_HOSTS')
-RECIEVER_EMAIL        = os.environ.get('RECIEVER_EMAIL') 
+EMAIL_BACKEND         = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST            = config('EMAIL_HOSTS')
+RECIEVER_EMAIL        = config('RECIEVER_EMAIL')
 
-EMAIL_DOMAIN          = os.environ.get('EMAIL_DOMAIN') 
-EMAIL_PORT            = os.environ.get('EMAIL_PORT') 
+EMAIL_DOMAIN          = config('EMAIL_DOMAIN')
+EMAIL_PORT            = config('EMAIL_PORT')
 
-EMAIL_USE_TLS         = get_bool_from_env("EMAIL_USE_TLSS", False) 
-EMAIL_USE_SSL         = get_bool_from_env("EMAIL_USE_SSLS", False) 
+EMAIL_USE_TLS         = config('EMAIL_USE_TLSS', default=False, cast=bool)
+EMAIL_USE_SSL         = config('EMAIL_USE_SSLS', default=False, cast=bool)
 
+DEFAULT_FROM_EMAIL    = config('DEFAULT_FROM_EMAIL')
 
-DEFAULT_FROM_EMAIL    = os.environ.get('DEFAULT_FROM_EMAIL') 
-
-TRACKING_SERVER = os.getenv('TRACKING_SERVER')
-
+TRACKING_SERVER       = config('TRACKING_SERVER', default=None)
 STATIC_URL = '/assets/'
 
 STATIC_ROOT  = os.path.join(BASE_DIR, 'assets')
