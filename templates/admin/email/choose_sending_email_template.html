@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sender</title>
+    <style>
+
+        * {
+
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .form-field {
+            margin-bottom: 15px;
+            text-align: left;
+            position: relative;
+        }
+        select, button, .dropdown-btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .dropdown-btn {
+            background: #fff;
+            text-align: left;
+        }
+        .dropdown-container {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+            z-index: 10;
+        }
+        .dropdown-container label {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            cursor: pointer;
+        }
+        .dropdown-container label:hover {
+            background: #f0f0f0;
+        }
+        .edit-btn {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .buttons {
+            display: inline-block;
+            padding: 10px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            margin-top:10px;    
+        }
+
+
+
+        .send-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .edit-btn:hover, .send-btn:hover {
+            opacity: 0.8;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .messages li {
+            color: red;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+    <div class="container">
+        <h2>Send Email</h2>
+        
+        <form method="post" action="{% url 'home:send_email' %}">
+            {% csrf_token %}
+            
+            <!-- Select Template -->
+            <div class="form-field">
+                <label for="template">Choose Template:</label>
+                <select name="template" id="template">
+                    <option value="">Select Template</option>
+                    {% for template in templates %}
+                        <option value="{{ template.id }}">{{ template.template_name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="edit-btn" onclick="editTemplate()">Edit Template</button>
+            </div>
+
+            <!-- Dropdown with Checkbox for Tags -->
+            <div class="form-field">
+                <label>Choose Tags:</label>
+                <div class="dropdown">
+                    <button type="button" class="dropdown-btn" onclick="toggleDropdown()">Select Tags</button>
+                    <div class="dropdown-container" id="dropdownContainer">
+                        {% for tag in tags %}
+                            <label>
+                                <input type="checkbox" name="tags" value="{{ tag.id }}" onchange="updateSelectedTags()">
+                                {{ tag.name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="button" class="edit-btn" onclick="editTags()">Edit Tags</button>
+            </div>
+
+            <!-- Send Button -->
+            <button type="submit" class="send-btn">Send</button>
+            <a href="{% url 'home:subscribe' %}" class="buttons">Cancel</a>
+
+        </form>
+    </div>
+
+    <script>
+        {% comment %} function editTemplate() {
+            let selectedTemplate = document.getElementById("template").value;
+            if (selectedTemplate) {
+                window.location.href = `/edit-template/${selectedTemplate}/`;
+            } else {
+                alert("Please select a template to edit.");
+            }
+        } {% endcomment %}
+
+        {% comment %} function editTags() {
+            alert("Feature to edit tags can be implemented here.");
+        } {% endcomment %}
+
+        function toggleDropdown() {
+            let dropdown = document.getElementById("dropdownContainer");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        function updateSelectedTags() {
+            let selectedTags = [];
+            let checkboxes = document.querySelectorAll("input[name='tags']:checked");
+            checkboxes.forEach((checkbox) => {
+                selectedTags.push(checkbox.nextSibling.nodeValue.trim());
+            });
+
+            let dropdownBtn = document.querySelector(".dropdown-btn");
+            dropdownBtn.innerText = selectedTags.length > 0 ? selectedTags.join(", ") : "Select Tags";
+        } 
+
+        document.addEventListener("click", function(event) {
+            let dropdown = document.getElementById("dropdownContainer");
+            let button = document.querySelector(".dropdown-btn");
+            if (!dropdown.contains(event.target) && event.target !== button) {
+                dropdown.style.display = "none";
+            }
+        });
+    </script> 
+
+</body>
+</html>

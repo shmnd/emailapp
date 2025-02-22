@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribe</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            width: 80%;
+            max-width: 600px; /* Prevents container from becoming too wide on large screens */
+            text-align: center;
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            padding: 10px 15px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .buttons:hover {
+            background-color: #5563c1;
+        }
+
+        .logout-button {
+            padding: 8px 12px;
+            background-color: red;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 14px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centers the label and input */
+            margin-bottom: 15px;
+            width: 100%; /* Ensures full width for centering */
+        }
+        
+        .form-field label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        .form-field input, 
+        .form-field select {
+            width: 320px; /* Fixed width for uniformity */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: left;
+        }
+        
+        
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5563c1;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            height: 1px;
+            background: #ddd;
+        }
+
+        p {
+            font-size: 14px;
+        }
+
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .messages li {
+            color: red;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="container">
+        <!-- Navigation Buttons -->
+        <div class="nav-buttons">
+            <a href="{% url 'home:tag_list' %}" class="buttons">Tags</a>
+            <a href="{% url 'home:template_list' %}" class="buttons">Templates</a>
+            <a href="{% url 'home:subscriber_list' %}" class="buttons">Users</a>
+            <a href="{% url 'home:send_email' %}" class="buttons">Send Email</a>
+            <a href="{% url 'home:email_sent_summary' %}" class="buttons">Send Summery</a>
+
+
+        </div>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'authentication:logout' %}" class="logout-button">Logout</a>
+        {% endif %}
+
+        <h1>Subscribe to Our Newsletter</h1>
+
+        <!-- Individual Subscription Form -->
+        <form method="post" id="subscribeForm">
+            {% csrf_token %}
+            <div class="form-field">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div class="error-message">
+                        {% for error in form.email.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="form-field">
+                {{ form.tags.label_tag }}
+                {{ form.tags }}
+                {% if form.tags.errors %}
+                    <div class="error-message">
+                        {% for error in form.tags.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit">Subscribe</button>
+        </form>
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <hr>
+
+        <!-- CSV Upload Form -->
+        <h2>Upload CSV for Bulk Subscription</h2>
+        <form method="post" enctype="multipart/form-data" id="csvUploadForm" action="{% url 'home:csv_upload' %}">
+            {% csrf_token %}
+            <div class="form-field">
+                <label for="tag">Tag:</label>
+                <select name="tag" id="tag">
+                    <option value="">Select Tag</option>
+                    {% for tag in tags %}
+                        <option value="{{ tag.id }}">{{ tag.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-field">
+                <label for="csv_file">Upload CSV File:</label>
+                <input type="file" name="csv_file" id="csv_file" accept=".csv">
+            </div>
+            <button type="submit">Upload</button>
+        </form>
+    </div>
+</body>
+</html>

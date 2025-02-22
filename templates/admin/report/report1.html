@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>Total Emails Sent: <span id="totalEmailsSent">0</span></h3>
+<h3>Total Unique Users Who Opened Emails: <span id="totalUniqueOpens">0</span></h3>
+
+<h3>Email Open Statistics:</h3>
+<ul id="emailSubjects"></ul>
+
+<h3>Users Who Opened Specific Emails:</h3>
+<ul id="individualOpens"></ul>
+
+<h3>Opened Emails by Template:</h3>
+<ul id="templateOpens"></ul>
+
+<!-- <script>
+    function fetchEmailOpens() {
+        fetch("{% url 'email_open_stats' %}")
+            .then(response => response.json())
+            .then(data => {
+                // Total emails sent
+                document.getElementById("totalEmailsSent").innerText = data.total_emails_sent;
+
+                // Total unique users who opened emails
+                document.getElementById("totalUniqueOpens").innerText = data.total_unique_opens;
+
+                // Display unique users per email subject
+                let subjectList = document.getElementById("emailSubjects");
+                subjectList.innerHTML = "";
+                data.email_subjects.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Email: ${item.email_subject} - Opened by ${item.unique_users} users`;
+                    subjectList.appendChild(li);
+                });
+
+                // Display individual users who opened specific emails
+                let individualList = document.getElementById("individualOpens");
+                individualList.innerHTML = "";
+                data.individual_opens.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Email: ${item.email_subject} - Opened by ${item.email} (Template ID: ${item.template_id || 'Unknown'})`;
+                    individualList.appendChild(li);
+                });
+
+                // Display opened emails by template
+                let templateList = document.getElementById("templateOpens");
+                templateList.innerHTML = "";
+                data.template_opens.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Template: ${item.template__template_name} (ID: ${item.template_id}) - Opened by ${item.unique_users} users`;
+                    templateList.appendChild(li);
+                });
+            });
+    }
+
+    fetchEmailOpens();  // Load data when page loads
+</script> -->
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch("/email-open-stats/")
+            .then(response => response.json())
+            .then(data => {
+                console.log("Fetched Data:", data);  // Debugging
+
+                document.getElementById("totalEmailsSent").innerText = data.total_emails_sent;
+                document.getElementById("totalUniqueOpens").innerText = data.total_unique_opens;
+
+                let subjectList = document.getElementById("emailSubjects");
+                subjectList.innerHTML = "";
+                data.email_subjects.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Email: ${item.email_subject} - Opened by ${item.unique_users} users`;
+                    subjectList.appendChild(li);
+                });
+
+                let individualList = document.getElementById("individualOpens");
+                individualList.innerHTML = "";
+                data.individual_opens.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Email: ${item.email_subject} - Opened by ${item.email} (Template ID: ${item.template_id || 'Unknown'})`;
+                    individualList.appendChild(li);
+                });
+
+                let templateList = document.getElementById("templateOpens");
+                templateList.innerHTML = "";
+                data.template_opens.forEach(item => {
+                    let li = document.createElement("li");
+                    li.innerText = `Template: ${item.template__template_name} (ID: ${item.template_id}) - Opened by ${item.unique_users} users`;
+                    templateList.appendChild(li);
+                });
+            })
+            .catch(error => console.error("Error fetching email open stats:", error));
+    });
+</script>
+
+</body>
+</html>

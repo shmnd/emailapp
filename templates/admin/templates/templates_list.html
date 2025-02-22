@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Templates</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1200px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .action-link {
+            display: inline-block;
+            padding: 10px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .action-link:hover {
+            background-color: #5563c1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        td a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        .buttons {
+            display: inline-block;
+            padding: 10px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .buttons:hover {
+            background-color: #5563c1;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .messages li {
+            color: red;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+    <div class="container">
+        <h2>Templates</h2>
+
+        <a href="{% url 'home:template_create' %}" class="action-link">Create New Template</a>
+        <a href="{% url 'home:subscribe' %}" class="buttons">Back to Home</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Subject</th>
+                    <th>Body</th>
+                    <th>Actions</th>
+                    <th style="width: 14%;">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for template in templates %}
+                    <tr>
+                        <td>{{ template.template_name }}</td>
+                        <td>{{ template.email_subject }}</td>
+                        <td>{{ template.email_body }}</td>
+                        <td>
+                            <a href="{% url 'home:template_view' template.id %}">View</a> | 
+                            <a href="{% url 'home:template_update' template.id %}">Edit</a> | 
+                            <a href="{% url 'home:template_delete' template.id %}">Delete</a>
+                        </td>
+                        <td>
+                            Email Sent: {{ template.count }}<br>
+                            Opened Emails: <br>  {% comment %} count of  who opend the email {% endcomment %}
+                            Opened Users: <br> {% comment %} list of users email who opend the email {% endcomment %}
+                            <ul>
+                                {% for email in template.opened_users %}
+                                    <li>{{ email }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+
+                        
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</body>
+</html>

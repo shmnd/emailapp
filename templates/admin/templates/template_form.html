@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Template</title>
+    <style>
+        /* Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 900px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-field {
+            margin-bottom: 15px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .form-field input, .form-field textarea, .form-field select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-field label {
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #5563c1;
+        }
+
+        .back-link {
+            display: inline-block;
+            padding: 10px;
+            background-color: #f2f2f2;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .back-link:hover {
+            background-color: #e0e0e0;
+        }
+        input[type="color"] {
+            width: 80px;
+            height: 40px;
+            padding: 0;
+            border: none;
+            cursor: pointer;
+        }
+
+        .image-preview {
+            margin-top: 10px;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f9f9f9;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+
+        .messages li {
+            color: red;
+            font-size: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+
+    <div class="container">
+        <h2>{% if form.instance.pk %}Edit{% else %}Create{% endif %} Template</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="form-field">
+                {{ form.template_name.label_tag }}
+                {{ form.template_name }}
+            </div>
+
+            <div class="form-field">
+                {{ form.email_subject.label_tag }}
+                {{ form.email_subject }}
+            </div>
+
+            <div class="form-field">
+                {{ form.email_body.label_tag }}
+                {{ form.email_body }}
+            </div>
+
+
+            <div class="form-field">
+                {{ form.logo.label_tag }}
+                {{ form.logo }}
+                <div class="image-preview">
+                    {% if form.instance.logo %}
+                        <img id="logoPreview" src="{{ form.instance.logo.url }}" alt="Logo Preview">
+                    {% else %}
+                        <img id="logoPreview" src="" alt="No Logo Selected" style="display: none;">
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="form-field">
+                {{ form.image.label_tag }}
+                {{ form.image }}
+                <div class="image-preview">
+                    {% if form.instance.image %}
+                        <img id="imagePreview" src="{{ form.instance.image.url }}" alt="Image Preview">
+                    {% else %}
+                        <img id="imagePreview" src="" alt="No Image Selected" style="display: none;">
+                    {% endif %}
+                </div>
+            </div>
+            
+
+            <div class="form-field">
+                {{ form.button_text.label_tag }}
+                {{ form.button_text }}
+            </div>
+
+            <div class="form-field">
+                {{ form.button_color.label_tag }}
+                {{ form.button_color }}
+            </div>
+
+            <div class="form-field">
+                {{ form.button_url.label_tag }}
+                {{ form.button_url }}
+            </div>
+
+            <div class="form-field">
+                {{ form.contact_email.label_tag }}
+                {{ form.contact_email }}
+            </div>
+
+            <div class="form-field">
+                {{ form.unsubscribe_url.label_tag }}
+                {{ form.unsubscribe_url }}
+            </div>
+
+            <div class="form-field">
+                {{ form.privacy_policy_url.label_tag }}
+                {{ form.privacy_policy_url }}
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+
+        <a href="{% url 'home:template_list' %}" class="back-link">Back to Template List</a>
+    </div>
+
+</body>
+
+{% load static %}
+<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        height: 300,
+        menubar: false,
+        plugins: [
+            'advlist autolink lists link charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+                 'bullist numlist outdent indent | removeformat | help'
+    });
+</script>
+
+
+
+<script>
+    function previewImage(input, previewId) {
+        var file = input.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var preview = document.getElementById(previewId);
+                preview.src = e.target.result;
+                preview.style.display = "block"; // Show the preview
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    document.getElementById("id_logo").addEventListener("change", function() {
+        previewImage(this, "logoPreview");
+    });
+
+    document.getElementById("id_image").addEventListener("change", function() {
+        previewImage(this, "imagePreview");
+    });
+</script> 
+
+<script src="{% static 'tinymce/tinymce.min.js' %}"></script>
+<script>
+    tinymce.init({
+        selector: 'textarea',
+        height: 300,
+        menubar: false,
+        plugins: [
+            'advlist autolink lists link charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media table paste code help wordcount'
+        ],
+        toolbar: 'undo redo | formatselect | bold italic | alignleft aligncenter alignright alignjustify | ' +
+                 'bullist numlist outdent indent | removeformat | add_button | help',
+        setup: function(editor) {
+            editor.ui.registry.addButton('add_button', {
+                text: 'Add Button',
+                onAction: function() {
+                    let buttonText = prompt("Enter button text:");
+                    let buttonUrl = prompt("Enter button URL:");
+
+                    if (buttonText && buttonUrl) {
+                        let buttonHtml = `<div style="text-align:center; margin:10px 0;">
+                            <a href="${buttonUrl}" style="background-color: #667eea; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none;">
+                                ${buttonText}
+                            </a>
+                        </div>`;
+                        editor.insertContent(buttonHtml);
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+
+
+{% comment %} <script>
+    function previewImage(input, previewId) {
+        var file = input.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var preview = document.getElementById(previewId);
+                preview.src = e.target.result;
+                preview.style.display = "block"; // Show preview when file is selected
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Attach event listeners for file inputs
+    document.getElementById("id_logo").addEventListener("change", function() {
+        previewImage(this, "logoPreview");
+    });
+
+    document.getElementById("id_image").addEventListener("change", function() {
+        previewImage(this, "imagePreview");
+    });
+</script> {% endcomment %}
+
+
+
+</html>

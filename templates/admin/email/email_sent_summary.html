@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Sent Summary</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+            overflow-x: auto;
+        }
+
+        h1, h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .buttons {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .buttons:hover {
+            background-color: #5563c1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 16px;
+            text-align: left;
+            table-layout: fixed; /* Enforce fixed table layout */
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            word-break: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* Set specific column widths */
+        th:nth-child(1), td:nth-child(1) { width: 5%; text-align: center; }
+        th:nth-child(2), td:nth-child(2) { width: 20%; }
+        th:nth-child(3), td:nth-child(3) { width: 25%; }
+        th:nth-child(4), td:nth-child(4) { width: 10%; text-align: center; }
+        th:nth-child(5), td:nth-child(5) { width: 40%; }
+
+        th {
+            background-color: #667eea;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 15px;
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="container">
+
+        <div class="nav-buttons">
+            <a href="{% url 'home:subscribe' %}" class="buttons">Home</a>
+            <a href="{% url 'home:send_email' %}" class="buttons">Send Email</a>
+            <a href="{% url 'home:email_summary_download' %}?template={{ selected_template_id }}" class="buttons">
+                Download
+            </a>
+        </div>
+
+        <br>
+
+        <!-- Filter by Templates -->
+        <form method="GET">
+            <label for="template">Filter by Template:</label>
+            <select name="template" id="template" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for template in unique_templates %}
+                    <option value="{{ template }}" {% if selected_template_id == template %}selected{% endif %}>
+                        {{ template }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+
+        <br>
+        <h2>Email Sent Summary</h2>
+
+        {% if email_records %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Template Name</th>
+                        <th>Email Address</th>
+                        <th>Status</th>
+                        <th>Failure Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in email_records %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ record.template_names }}</td>
+                            <td>{{ record.sended_emails }}</td>
+                            <td>{{ record.status }}</td>
+                            <td>{{ record.failure_reason}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No emails have been sent yet.</p>
+        {% endif %}
+
+    </div>
+
+</body>
+</html>
