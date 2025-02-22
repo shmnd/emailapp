@@ -175,10 +175,11 @@ EMAIL_USE_SSL         = config('EMAIL_USE_SSLS', default=False, cast=bool)
 DEFAULT_FROM_EMAIL    = config('DEFAULT_FROM_EMAIL')
 
 TRACKING_SERVER       = config('TRACKING_SERVER', default=None)
-STATIC_URL = '/assets/'
 
-STATIC_ROOT  = os.path.join(BASE_DIR, 'assets')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] if DEBUG else []
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 MEDIA_URL = '/media/'
