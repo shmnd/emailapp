@@ -106,7 +106,7 @@ WSGI_APPLICATION = 'emailsender_core.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 load_dotenv()
 try:
-    database_port = int(os.environ.get('DATABASE_PORT'))
+    database_port = int(os.environ.get('DATABASE_PORT'),5432)
 except ValueError as e:
     raise ValueError(f"Port could not be cast to integer value: {e}")
 
