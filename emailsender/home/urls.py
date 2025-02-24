@@ -4,7 +4,7 @@ from home.views import (
     subscribe_view, tag_create, tag_delete, tag_update, tag_list, template_list,
     template_create, template_update, template_delete, subscriber_list, csv_upload,
     export_subscribers, send_email_view, template_view, track_email_open,
-    email_sent_summary, email_sent_summary_download
+    email_sent_summary, email_sent_summary_download,CreateEnquiresApiView,EnquriryListApiView
 )
 
 from django.contrib.auth.decorators import login_required
@@ -43,6 +43,11 @@ urlpatterns = [
 
     # Tracking Emails
     path('track-email/', login_required(track_email_open), name='track_email_open'),
+
+    # api of enquiries
+    path('create-enquiry/',CreateEnquiresApiView.as_view()),
+    path('enquiry-list/',EnquriryListApiView.as_view())
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

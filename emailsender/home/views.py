@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from home.forms import SubscribeForm,TagForm,TemplateForm
-from home.models import Subscriber,Tags,Template,EmailSummery,EmailOpenTracking
+from home.models import Subscriber,Tags,Template,EmailSummery,EmailOpenTracking,Customers
 import csv
 from django.contrib import messages
 from home.subscription_mail import mail_send
@@ -9,7 +9,14 @@ from django.utils.timezone import now
 from django.db import IntegrityError
 from django.http import HttpResponse
 
-
+from home.serializers import CreateEnquiresSerializer
+from rest_framework import generics,status
+from emailsender_core.helpers.response import ResponseInfo
+from home.schema import EnquiryDetailsSchema
+from rest_framework.response import Response
+from emailsender_core.helpers.pagination import RestPagination
+from rest_framework.permissions import IsAuthenticated
+from typing import Any           
 
 def subscribe_view(request):
     if request.method == 'POST':
@@ -347,3 +354,100 @@ def track_email_open(request):
 
     transparent_pixel = b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\xff\x00\xc0\xc0\xc0\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
     return HttpResponse(transparent_pixel, content_type="image/gif")
+
+
+
+
+# api (in restframe work)
+class CreateEnquiresApiView(generics.CreateAPIView):
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super(CreateEnquiresApiView,self).__init__(**kwargs)
+
+    serializer_class = CreateEnquiresSerializer
+
+    def post(self,request):
+        try:
+            serializer = self.serializer_class(data=request.data,context={'request':request})
+
+            if not serializer.is_valid():
+                self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
+                self.response_format['status'] = False
+                self.response_format['errors'] = serializer.errors
+                return Response(self.response_format,status=status.HTTP_400_BAD_REQUEST)
+            
+            serializer.save()
+            self.response_format['status_code'] = status.HTTP_201_CREATED
+            self.response_format['status'] = True
+            self.response_format['message'] = "Enquiry created successfully"
+            self.response_format['data'] = serializer.data
+            return Response(self.response_format,status=status.HTTP_201_CREATED)
+        
+        except Exception as e:
+            self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            self.response_format['status'] = False
+            self.response_format['message'] = str(e)
+            return Response(self.response_format,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+# class EnquriryListApiView(generics.GenericAPIView):
+#     def __init__(self, **kwargs):
+#         self.response_format = ResponseInfo().response
+#         super(EnquriryListApiView,self).__init__( **kwargs)
+
+#     serializer_class = EnquiryDetailsSchema
+#     pagination_class = RestPagination
+#     permission_classes = (IsAuthenticated,)
+
+#     def get(self,request):
+#         try:
+#             # import pdb ; pdb.set_trace()
+#             queryset = Customers.objects.all().order_by('-id')
+#             print(queryset,'qqqqqqqq')
+#             page = self.paginate_queryset(queryset)
+#             print(page,'vvvvvvvvvvvvv')
+
+#             if page is not None:
+#                 serializer = self.serializer_class(page,many=True,context={'request':request})
+#                 return self.get_paginated_response(serializer.data)
+            
+#             serializer = self.serializer_class(queryset,many=True,context={'request':request})
+#             self.response_format['status_code'] = status.HTTP_200_OK
+#             self.response_format['status'] = True
+#             self.response_format['data'] = serializer.data
+#             return Response(self.response_format,status=status.HTTP_200_OK)
+#         except Exception as e:
+#             self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+#             self.response_format['status'] = False
+#             self.response_format['error'] = str(e)
+#             print(str(e),'bugggggggggggggggggggggg')
+#             return Response(self.response_format,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class EnquriryListApiView(generics.GenericAPIView):
+    def __init__(self, **kwargs: Any) -> None:
+        self.response_format = ResponseInfo().response
+        super(EnquriryListApiView,self).__init__(**kwargs)
+
+    serializer_class    = EnquiryDetailsSchema
+    permission_classes  = (IsAuthenticated,)
+    pagination_class    = RestPagination
+
+    def get(self, request):
+        try:
+            queryset = Customers.objects.all().order_by('-id')
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.serializer_class(page,many=True,context={'request':request})
+                return self.get_paginated_response(serializer.data)
+            
+            serializer = self.serializer_class(queryset,many=True,context={'request':request})
+            self.response_format['status_code']   = status.HTTP_200_OK
+            self.response_format['status']        = True
+            self.response_format['data']          = serializer.data
+            return Response(self.response_format,status=status.HTTP_200_OK)
+        except Exception as e:
+            self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            self.response_format['status'] = False
+            self.response_format['error'] = str(e)
+            print(str(e),'buggggggggggggggggg')
+            return Response(self.response_format, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
