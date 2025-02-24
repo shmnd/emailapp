@@ -8,9 +8,9 @@ class RestPagination(PageNumberPagination):
     page_size = 15
     page_size_query_param = 'limit'
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.response_format = ResponseInfo().response
-        super(RestPagination,self).__init__(RestPagination,self)
+        super(RestPagination,self).__init__(**kwargs)
 
 
     def get_paginated_respone(self,data):

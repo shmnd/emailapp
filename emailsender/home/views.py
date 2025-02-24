@@ -389,65 +389,38 @@ class CreateEnquiresApiView(generics.CreateAPIView):
             self.response_format['message'] = str(e)
             return Response(self.response_format,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
-# class EnquriryListApiView(generics.GenericAPIView):
-#     def __init__(self, **kwargs):
-#         self.response_format = ResponseInfo().response
-#         super(EnquriryListApiView,self).__init__( **kwargs)
-
-#     serializer_class = EnquiryDetailsSchema
-#     pagination_class = RestPagination
-#     permission_classes = (IsAuthenticated,)
-
-#     def get(self,request):
-#         try:
-#             # import pdb ; pdb.set_trace()
-#             queryset = Customers.objects.all().order_by('-id')
-#             print(queryset,'qqqqqqqq')
-#             page = self.paginate_queryset(queryset)
-#             print(page,'vvvvvvvvvvvvv')
-
-#             if page is not None:
-#                 serializer = self.serializer_class(page,many=True,context={'request':request})
-#                 return self.get_paginated_response(serializer.data)
-            
-#             serializer = self.serializer_class(queryset,many=True,context={'request':request})
-#             self.response_format['status_code'] = status.HTTP_200_OK
-#             self.response_format['status'] = True
-#             self.response_format['data'] = serializer.data
-#             return Response(self.response_format,status=status.HTTP_200_OK)
-#         except Exception as e:
-#             self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
-#             self.response_format['status'] = False
-#             self.response_format['error'] = str(e)
-#             print(str(e),'bugggggggggggggggggggggg')
-#             return Response(self.response_format,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
+import sys, os
 class EnquriryListApiView(generics.GenericAPIView):
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, **kwargs):
         self.response_format = ResponseInfo().response
-        super(EnquriryListApiView,self).__init__(**kwargs)
+        super(EnquriryListApiView,self).__init__( **kwargs)
 
-    serializer_class    = EnquiryDetailsSchema
-    permission_classes  = (IsAuthenticated,)
-    pagination_class    = RestPagination
+    serializer_class = EnquiryDetailsSchema
+    pagination_class = RestPagination
+    # permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def get(self,request):
         try:
             queryset = Customers.objects.all().order_by('-id')
             page = self.paginate_queryset(queryset)
+
             if page is not None:
                 serializer = self.serializer_class(page,many=True,context={'request':request})
-                return self.get_paginated_response(serializer.data)
+                # return self.get_paginated_response(serializer.data)
+                response = self.get_paginated_response(serializer.data)
+                print(response.data, 'response_data')  # Debugging
+                return response
             
             serializer = self.serializer_class(queryset,many=True,context={'request':request})
-            self.response_format['status_code']   = status.HTTP_200_OK
-            self.response_format['status']        = True
-            self.response_format['data']          = serializer.data
+            print(serializer.data,'helooooooooooo')
+            self.response_format['status_code'] = status.HTTP_200_OK
+            self.response_format['status'] = True
+            self.response_format['data'] = serializer.data
             return Response(self.response_format,status=status.HTTP_200_OK)
         except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
             self.response_format['status'] = False
-            self.response_format['error'] = str(e)
-            print(str(e),'buggggggggggggggggg')
+            self.response_format['message'] = f'Error in {fname}, line {exc_tb.tb_lineno}: {str(e)}'
             return Response(self.response_format, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
