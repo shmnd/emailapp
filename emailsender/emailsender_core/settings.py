@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os,dj_database_url,warnings,ast
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
-from dotenv import load_dotenv
 from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -103,7 +102,6 @@ WSGI_APPLICATION = 'emailsender_core.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-load_dotenv()
 try:
     database_port = int(os.environ.get('DATABASE_PORT', '5432'))
 except ValueError as e:
@@ -193,6 +191,10 @@ LOGIN_URL = '/auth/login/'
 
 AUTH_USER_MODEL  = 'authentication.Users'
 
+# If you want to allow all origins (Not recommended for production)
+CORS_ALLOW_ALL_ORIGINS = True
 
+# Allow credentials (if using authentication)
+CORS_ALLOW_CREDENTIALS = True
 
 
