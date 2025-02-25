@@ -43,7 +43,7 @@ def send_email_task(subscriber, selected_template, tracking_server, logo_cid, im
     subject = selected_template.email_subject or "No Subject"
     rand = int(time.time())
     email_track = f'<img src="{tracking_server}/track-email/?email={subscriber_email}&subscriber_id={subscriber.id}&template_id={selected_template.id}&subject={subject}&rand={rand}" width="1" height="1" style="display:none;">'
-
+    unsubscription = settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
     context = {
         "subject": subject,
         "template_name": selected_template.template_name,
@@ -51,8 +51,8 @@ def send_email_task(subscriber, selected_template, tracking_server, logo_cid, im
         "button_text": selected_template.button_text or "Click Here",
         "button_color": selected_template.button_color or "#007BFF",
         "button_url": selected_template.button_url or "#",
-        "contact_email": selected_template.contact_email or "support@example.com",
-        "unsubscribe_url": selected_template.unsubscribe_url or "#",
+        "contact_email": selected_template.contact_email or "abhishek@medicoapps.org",
+        "unsubscribe_url": selected_template.unsubscribe_url or unsubscription,
         "privacy_policy_url": selected_template.privacy_policy_url or "#",
         "logo_url": f"cid:{logo_cid}",
         "image_url": f"cid:{image_cid}",
@@ -117,14 +117,13 @@ def send_email_task(subscriber, selected_template, tracking_server, logo_cid, im
 
 def mail_send(request, selected_template, selected_tags):
     """Optimized mail sending with bulk create and concurrent execution."""
-    subscribers = Subscriber.objects.filter(tags__id__in=selected_tags).distinct() if selected_tags else Subscriber.objects.all()
+    subscribers = Subscriber.objects.filter(tags__id__in=selected_tags).distinct() if selected_tags else Subscriber.objects.filter(is_unsubscribed=False)
 
     if not subscribers.exists():
         messages.error(request, "No subscribers found.")
         return redirect('home:send_email')
 
     tracking_server = settings.TRACKING_SERVER
-    
     logo_cid, image_cid = "logo_cid", "image_cid"
 
     total_emails, email_summaries = 0, []

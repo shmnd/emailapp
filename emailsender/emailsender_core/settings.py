@@ -175,6 +175,7 @@ EMAIL_USE_SSL         = config('EMAIL_USE_SSLS', default=False, cast=bool)
 DEFAULT_FROM_EMAIL    = config('DEFAULT_FROM_EMAIL')
 
 TRACKING_SERVER       = config('TRACKING_SERVER', default=None)
+UNSUBSCRIPTION_PATH   = config('UNSUBSCRIPTION_PATH')
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] if DEBUG else []

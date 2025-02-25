@@ -17,6 +17,7 @@ from home.schema import EnquiryDetailsSchema
 from rest_framework.response import Response
 from emailsender_core.helpers.pagination import RestPagination
 from rest_framework.permissions import IsAuthenticated
+from emailsender_core.helpers.bulk_email import decrypt_email
 
 def subscribe_view(request):
     if request.method == 'POST':
@@ -435,12 +436,11 @@ class EmailUnsubscriptionApiView(generics.GenericAPIView):
         try:
 
             email = request.data.get('email')
-            unsubscriber, created = Subscriber.objects.get_or_create(email=email)
-           # ✅ If subscriber exists (created=False), update the unsubscribe fields
-            unsubscriber.is_unsubscribed = True
+            # email = decrypt_email(email)
+            # print(email,'emiallllllllll')
+            unsubscriber = Subscriber.objects.filter(email=email).update(is_unsubscribed=True)
             unsubscriber.unsubscribed_at = now()
             unsubscriber.save()
-
 
             self.response_format["data"] = ""
             self.response_format["message"] = 'You have successfully unsubscribed.'
