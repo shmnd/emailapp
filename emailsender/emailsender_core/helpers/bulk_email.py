@@ -4,6 +4,49 @@ from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 from django.core.mail import  get_connection
 from emailsender_core import settings
+from Crypto.Cipher import AES
+import binascii
+
+# -----------------------------------------Encrypt Email -----------------------------------
+
+'''Encryption pad'''
+
+def pad(data, block_size):
+    padding_len = block_size - len(data) % block_size
+    padding = bytes([padding_len] * padding_len)
+    return data + padding
+
+def unpad(data, block_size):
+    padding_len = data[-1]
+    return data[:-padding_len]
+
+'''Encrypt and Decrypt Emails'''
+
+key = b'B4VK5NGB?m*Y5(#knHAx^9Jas[*=&g;V'
+
+def encrypt_email(email):
+    email_bytes = email.encode('utf-8')
+    pad_len = 16 - len(email_bytes) % 16
+    padded_email = pad(email_bytes, 16)
+    cipher = AES.new(key, AES.MODE_CBC)
+    encrypted_email = cipher.encrypt(padded_email)
+    iv = cipher.iv
+    ciphertext = iv + encrypted_email
+    hex_ciphertext = binascii.hexlify(ciphertext).decode('utf-8')
+    return hex_ciphertext
+
+
+def decrypt_email(encrypted_email):
+    encrypted_email_bytes = binascii.unhexlify(encrypted_email.encode('utf-8'))
+    iv = encrypted_email_bytes[:16]  # Extract IV from ciphertext
+    cipher = AES.new(key, AES.MODE_CBC, iv)
+    decrypted_email_bytes = cipher.decrypt(encrypted_email_bytes[16:])
+    decrypted_email = unpad(decrypted_email_bytes, AES.block_size).decode('utf-8')
+    return decrypted_email
+
+
+# ----------------------------------------------- SENDING EMAIL -----------------------------------------
+'''Sending bulk email'''
 
 class SendBulkEmailsSend:
     def __init__(self, *args, **kwargs):

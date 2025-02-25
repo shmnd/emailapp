@@ -28,6 +28,8 @@ class Subscriber(AbstractDateFieldMix):
     active_user         = models.BooleanField(default=True)
     tags                = models.ManyToManyField(Tags, blank=True)
     is_active           = models.BooleanField(default=True)
+    is_unsubscribed     = models.BooleanField(default=False)
+    unsubscribed_at     = models.DateTimeField(auto_now_add=True,editable=False,blank=True, null=True)
 
     def __str__(self):
         return self.email or self.subscribed_email or self.bounced_email or self.unsubscribed_email or self.non_subscriber

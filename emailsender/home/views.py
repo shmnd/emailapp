@@ -1,3 +1,4 @@
+import sys, os
 from django.shortcuts import render, redirect,get_object_or_404
 from home.forms import SubscribeForm,TagForm,TemplateForm
 from home.models import Subscriber,Tags,Template,EmailSummery,EmailOpenTracking,Customers
@@ -9,14 +10,13 @@ from django.utils.timezone import now
 from django.db import IntegrityError
 from django.http import HttpResponse
 
-from home.serializers import CreateEnquiresSerializer
+from home.serializers import CreateEnquiresSerializer,UnsubscriberEmailSerializers
 from rest_framework import generics,status
 from emailsender_core.helpers.response import ResponseInfo
 from home.schema import EnquiryDetailsSchema
 from rest_framework.response import Response
 from emailsender_core.helpers.pagination import RestPagination
 from rest_framework.permissions import IsAuthenticated
-from typing import Any           
 
 def subscribe_view(request):
     if request.method == 'POST':
@@ -389,7 +389,6 @@ class CreateEnquiresApiView(generics.CreateAPIView):
             self.response_format['message'] = str(e)
             return Response(self.response_format,status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-import sys, os
 class EnquriryListApiView(generics.GenericAPIView):
     def __init__(self, **kwargs):
         self.response_format = ResponseInfo().response
@@ -397,7 +396,7 @@ class EnquriryListApiView(generics.GenericAPIView):
 
     serializer_class = EnquiryDetailsSchema
     pagination_class = RestPagination
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self,request):
         try:
@@ -406,13 +405,9 @@ class EnquriryListApiView(generics.GenericAPIView):
 
             if page is not None:
                 serializer = self.serializer_class(page,many=True,context={'request':request})
-                # return self.get_paginated_response(serializer.data)
-                response = self.get_paginated_response(serializer.data)
-                print(response.data, 'response_data')  # Debugging
-                return response
+                return self.get_paginated_response(serializer.data)
             
             serializer = self.serializer_class(queryset,many=True,context={'request':request})
-            print(serializer.data,'helooooooooooo')
             self.response_format['status_code'] = status.HTTP_200_OK
             self.response_format['status'] = True
             self.response_format['data'] = serializer.data
@@ -423,4 +418,35 @@ class EnquriryListApiView(generics.GenericAPIView):
             self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
             self.response_format['status'] = False
             self.response_format['message'] = f'Error in {fname}, line {exc_tb.tb_lineno}: {str(e)}'
+            return Response(self.response_format, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+# Unsubscription Email api 
+
+class EmailUnsubscriptionApiView(generics.GenericAPIView):
+    serializer_class = UnsubscriberEmailSerializers
+
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super(EmailUnsubscriptionApiView,self).__init__(**kwargs)
+
+
+    def post(self,request):
+        try:
+
+            email = request.data.get('email')
+            unsubscriber, created = Subscriber.objects.get_or_create(email=email)
+           # ✅ If subscriber exists (created=False), update the unsubscribe fields
+            unsubscriber.is_unsubscribed = True
+            unsubscriber.unsubscribed_at = now()
+            unsubscriber.save()
+
+
+            self.response_format["data"] = ""
+            self.response_format["message"] = 'You have successfully unsubscribed.'
+            return Response(self.response_format, status=status.HTTP_200_OK)  
+        except Exception as e:
+            self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
+            self.response_format['status'] = False
+            self.response_format['message'] = str(e)
             return Response(self.response_format, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

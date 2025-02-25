@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from home.models import Customers
 import re
+from home.models import Subscriber
 
 class CreateEnquiresSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,3 +32,9 @@ class CreateEnquiresSerializer(serializers.ModelSerializer):
         )
         instance.save()
         return instance
+    
+
+class UnsubscriberEmailSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Subscriber
+        fields = ['email']
