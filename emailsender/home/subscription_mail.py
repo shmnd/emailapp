@@ -53,7 +53,7 @@ def send_email_task(subscriber, selected_template, tracking_server, logo_cid, im
         "button_url": selected_template.button_url or "#",
         "contact_email": selected_template.contact_email or "abhishek@medicoapps.org",
         "unsubscribe_url": selected_template.unsubscribe_url or unsubscription,
-        "privacy_policy_url": selected_template.privacy_policy_url or "#",
+        "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
         "logo_url": f"cid:{logo_cid}",
         "image_url": f"cid:{image_cid}",
         "subscriber": subscriber,
