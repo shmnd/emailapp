@@ -233,7 +233,7 @@ def send_email_view(request):
             messages.error(request,'NO subscribers found on selected tags')
             return redirect('home:send_email')
         
-        mail_send(request,template,tag_ids)
+        mail_send(request,template,subscribers)
         return redirect("home:email_sent_summary")
 
     template = Template.objects.all()

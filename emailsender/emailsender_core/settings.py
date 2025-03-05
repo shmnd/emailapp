@@ -30,7 +30,8 @@ def get_bool_from_env(name, default_value):
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', cast=bool)
+# DEBUG = config('DEBUG', cast=bool)
+DEBUG = True
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
@@ -61,6 +62,7 @@ THIRD_PARTY_APPS = [
     'tinymce',  
     'django_extensions',
     'corsheaders',
+    'mailqueue',
     
 ]
 
@@ -165,7 +167,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 EMAIL_HOST_USER       = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD   = config('EMAIL_HOST_PASSWORD')
 
-EMAIL_BACKEND         = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST            = config('EMAIL_HOSTS')
 RECIEVER_EMAIL        = config('RECIEVER_EMAIL')
 
@@ -200,4 +201,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Allow credentials (if using authentication)
 CORS_ALLOW_CREDENTIALS = True
 
+MAILQUEUE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
+
+
+# EMAIL_BACKEND = 'django_mail_queue.backends.EmailBackend'
+# EMAIL_BACKEND = 'django_mailqueue.backends.EmailBackend'
+# EMAIL_BACKEND = 'django-mail-queue.backends.MailQueueBackend'
+
+
+
+MAILQUEUE_CELERY = False  # Use True if integrating with Celery for distributed task management
+MAILQUEUE_QUEUE_UP = True
+MAILQUEUE_LIMIT = 50

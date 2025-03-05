@@ -65,26 +65,32 @@
 
     <div class="container">
         <!-- Logo -->
+         
         <div class="header">
             {% if logo_url %}
-                <img src="{{ logo_url }}" alt="Company Logo">
+                <img src="{{ logo_url.url }}" alt="Company Logo" >
+            {% comment %} {% else %}
+                <img src="https://www.medicoapps.org/static/images/download.jpg" alt="Default Logo"> {% endcomment %}
             {% endif %}
         </div>
 
-        <!-- Email Content -->
+
         <div class="content">
             <p>{{ email_body|safe }}</p>
             
             {% if image_url %}
-                <img src="{{ image_url }}" alt="Featured Image" class="email-image">
+                <img src="{{ image_url.url }}" alt="Featured Image" class="email-image">
+            {% comment %} {% else %}
+                <img src="https://www.medicoapps.org/static/images/Medical-Apps.jpg" alt="Default Featured Image" class="email-image"> {% endcomment %}
             {% endif %}
+
 
             <!-- Call to Action Button -->
             {% if button_url %}
                 <a href="{{ button_url }}" class="cta-button">{{ button_text|default:"Learn More" }}</a>
             {% endif %}
 
-            <p>If you have any questions, feel free to <a href="mailto:{{ contact_email|default:"support@example.com" }}">contact us</a>.</p>
+            <p>If you have any questions, feel free to <a href="mailto:{{ contact_email|default:"abhishek@medicoapps.org" }}">contact us</a>.</p>
         </div>
 
         <!-- Footer -->

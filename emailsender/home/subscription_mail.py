@@ -1,156 +1,115 @@
-from django.shortcuts import redirect
-from concurrent.futures import ThreadPoolExecutor
-from emailsender_core import settings
-from django.contrib import messages
-from django.core.mail import EmailMultiAlternatives
-from django.utils.html import strip_tags
-from django.template.loader import render_to_string
-from email.mime.image import MIMEImage
-from home.models import Subscriber, EmailSummery, Template
-from django.db.models import F
+from mailqueue.models import MailerMessage
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from home.models import Subscriber, EmailSummery, Template
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from emailsender_core import settings
+from django.utils.html import strip_tags
+from django.db.models import F
 import time
-import smtplib
-
-try:
-    server = smtplib.SMTP(settings.EMAIL_HOST, settings.EMAIL_PORT)
-    server.starttls()
-    server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-    server.quit()
-except Exception as e:
-    print(f"SMTP connection failed: {e}")
 
 
-
-
-
-def send_email_task(subscriber, selected_template, tracking_server, logo_cid, image_cid):
-    """Send email and prepare EmailSummery instance for bulk creation."""
-    subscriber_email = subscriber.email or "unknown@example.com"
-    try:
-        validate_email(subscriber_email)
-    except ValidationError:
-        return EmailSummery(
-            sended_emails=subscriber_email,
-            template_names=selected_template.template_name,
-            status='Failed',
-            failure_reason='Invalid Email Format',
-            subscriber_id=subscriber,
-            template_id=selected_template
-        )
-
-    subject = selected_template.email_subject or "No Subject"
-    rand = int(time.time())
-    email_track = f'<img src="{tracking_server}/track-email/?email={subscriber_email}&subscriber_id={subscriber.id}&template_id={selected_template.id}&subject={subject}&rand={rand}" width="1" height="1" style="display:none;">'
-    unsubscription = settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
-    context = {
-        "subject": subject,
-        "template_name": selected_template.template_name,
-        "email_body": (selected_template.email_body or "This is a sample email content.") + email_track,
-        "button_text": selected_template.button_text or "Click Here",
-        "button_color": selected_template.button_color or "#007BFF",
-        "button_url": selected_template.button_url or "#",
-        "contact_email": selected_template.contact_email or "abhishek@medicoapps.org",
-        "unsubscribe_url": selected_template.unsubscribe_url or unsubscription,
-        "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
-        "logo_url": f"cid:{logo_cid}",
-        "image_url": f"cid:{image_cid}",
-        "subscriber": subscriber,
-        "tracking_server": tracking_server,
-        "template_id": selected_template.id
-    }
-
-    html_content = render_to_string("email_template/template1.html", context)
-    plain_text_content = strip_tags(html_content)
-
-
-    email = EmailMultiAlternatives(
-        subject=subject,
-        body=plain_text_content,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[subscriber_email],
-    )
-    email.attach_alternative(html_content, "text/html")
-
-    if selected_template.logo:
-        try:
-            with open(selected_template.logo.path, "rb") as img:
-                mime_img = MIMEImage(img.read(), _subtype="jpeg")
-                mime_img.add_header("Content-ID", f"<{logo_cid}>")
-                mime_img.add_header("Content-Disposition", "inline", filename="logo.jpg")
-                email.attach(mime_img)
-        except Exception as e:
-            print(f"Error attaching logo: {e}")
-
-    if selected_template.image:
-        try:
-            with open(selected_template.image.path, "rb") as img:
-                mime_img = MIMEImage(img.read(), _subtype="jpeg")
-                mime_img.add_header("Content-ID", f"<{image_cid}>")
-                mime_img.add_header("Content-Disposition", "inline", filename="banner.jpg")
-                email.attach(mime_img)
-        except Exception as e:
-            print(f"Error attaching banner: {e}")
-
-    try:
-        email.send()
-        return EmailSummery(
-            sended_emails=subscriber_email,
-            template_names=selected_template.template_name,
-            status='Sent',
-            subscriber_id=subscriber,
-            template_id=selected_template,
-            failure_reason = " - "
-        )
-    except Exception as e:
-        print(f'Failed due to :{e}')
-        return EmailSummery(
-            sended_emails=subscriber_email,
-            template_names=selected_template.template_name,
-            status='Failed',
-            failure_reason=e,
-            subscriber_id=subscriber,
-            template_id=selected_template
-        )
-
-
-def mail_send(request, selected_template, selected_tags):
-    """Optimized mail sending with bulk create and concurrent execution."""
-    subscribers = Subscriber.objects.filter(tags__id__in=selected_tags).distinct() if selected_tags else Subscriber.objects.filter(is_unsubscribed=False)
+def mail_send(request, selected_template, subscribers):
+    """Optimized mail sending with django-mail-queue."""
 
     if not subscribers.exists():
         messages.error(request, "No subscribers found.")
         return redirect('home:send_email')
 
     tracking_server = settings.TRACKING_SERVER
-    logo_cid, image_cid = "logo_cid", "image_cid"
+    email_summaries = []
+    mailer_messages = []
 
-    total_emails, email_summaries = 0, []
+    for subscriber in subscribers:
+        subscriber_email = subscriber.email or "unknown@example.com"
+        try:
+            validate_email(subscriber_email)
+        except ValidationError:
+            email_summaries.append(EmailSummery(
+                sended_emails=subscriber_email,
+                template_names=selected_template.template_name,
+                status='Failed',
+                failure_reason='Invalid Email Format',
+                subscriber_id=subscriber,
+                template_id=selected_template
+            ))
+            continue
 
-    # ✅ Use ThreadPoolExecutor for faster multi-threaded execution
-    with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [
-            executor.submit(send_email_task, subscriber, selected_template, tracking_server, logo_cid, image_cid)
-            for subscriber in subscribers
-        ]
+        subject = selected_template.email_subject or "No Subject"
+        rand = int(time.time())
+        email_track = f'<img src="{tracking_server}/track-email/?email={subscriber_email}&subscriber_id={subscriber.id}&template_id={selected_template.id}&subject={subject}&rand={rand}" width="1" height="1" style="display:none;">'
+        
+        # Generate Unsubscribe URL
+        unsubscription = selected_template.unsubscribe_url or settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
+        
+        print("Logo URL:", request.build_absolute_uri(selected_template.logo.url) if selected_template.logo else "No Logo Found")
+        print("Image URL:", request.build_absolute_uri(selected_template.image.url) if selected_template.image else "No Image Found")
 
-        for future in futures:
-            email_summary = future.result()
-            if email_summary:
-                email_summaries.append(email_summary)
-            total_emails += 1
 
+        # Prepare context
+        context = {
+            "subject": subject,
+            "template_name": selected_template.template_name,
+            "email_body": (selected_template.email_body or "This is a sample email content.") + email_track,
+            "button_text": selected_template.button_text or "Click Here",
+            "button_color": selected_template.button_color or "#007BFF",
+            "button_url": selected_template.button_url or "#",
+            "contact_email": selected_template.contact_email or "abhishek@medicoapps.org",
+            "unsubscribe_url": unsubscription,
+            "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
+
+            # "logo_url": request.build_absolute_uri(selected_template.logo.url).replace("http://127.0.0.1:8000", "http://email.arolus.com"), #if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
+
+            # "image_url": request.build_absolute_uri(selected_template.image.url).replace("http://127.0.0.1:8000", "http://email.arolus.com"), #if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
+
+
+            # "logo_url": "http://email.arolus.com" + selected_template.logo.url if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
+            # "image_url": "http://email.arolus.com" + selected_template.image.url if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
+            "logo_url":selected_template.logo,
+            "image_url": selected_template.image,
+
+            "subscriber": subscriber,
+            "tracking_server": tracking_server,
+            "template_id": selected_template.id
+        }
+
+
+        print("Generated Logo URL:", selected_template.logo.url)
+        print("Generated Image URL:", selected_template.image.url)
+
+        # Render HTML content
+        html_content = render_to_string("email_template/template1.html", context)
+
+        # Create MailerMessage object
+        message = MailerMessage(
+            subject=subject,
+            to_address=subscriber_email,
+            from_address=settings.DEFAULT_FROM_EMAIL,
+            content=strip_tags(html_content),
+            html_content=html_content
+        )
+        mailer_messages.append(message)
+
+        # Record email summary
+        email_summaries.append(EmailSummery(
+            sended_emails=subscriber_email,
+            template_names=selected_template.template_name,
+            status='Queued',
+            subscriber_id=subscriber,
+            template_id=selected_template,
+            failure_reason=" - "
+        ))
+
+    # Bulk create MailerMessage objects
+    MailerMessage.objects.bulk_create(mailer_messages)
+
+    # Bulk create email summaries
     EmailSummery.objects.bulk_create(email_summaries)
 
-    # ✅ Update template count based on successful sends
-    total_sent = sum(1 for e in email_summaries if e.status == 'Sent')
-    total_failed = sum(1 for e in email_summaries if e.status == 'Failed')
-    Template.objects.filter(id=selected_template.id).update(count=F('count') + total_sent)
+    # Update template count based on successful sends
+    Template.objects.filter(id=selected_template.id).update(count=F('count') + len(email_summaries))
 
-    # ✅ Summary Output
-    print(f"Total Emails Processed: {total_emails}")
-    print(f"Emails Sent Successfully: {total_sent}")
-    print(f"Emails Failed: {total_failed}")
-
+    messages.success(request, f"{len(email_summaries)} emails queued for sending.")
     return redirect("home:email_sent_summary")

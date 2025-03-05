@@ -11,6 +11,7 @@ Django==5.1.6
 django-cors-headers==4.7.0
 django-extensions==3.2.3
 django-flanker==0.3.0
+django-mail-queue==3.2.6
 django-tinymce==4.1.0
 djangorestframework==3.15.2
 docutils==0.16
