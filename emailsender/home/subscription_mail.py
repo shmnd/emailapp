@@ -9,7 +9,7 @@ from emailsender_core import settings
 from django.utils.html import strip_tags
 from django.db.models import F
 import time
-
+from django.core.management import call_command
 
 def mail_send(request, selected_template, subscribers):
     """Optimized mail sending with django-mail-queue."""
@@ -85,6 +85,7 @@ def mail_send(request, selected_template, subscribers):
         )
         mailer_messages.append(message)
 
+
         # Record email summary
         email_summaries.append(EmailSummery(
             sended_emails=subscriber_email,
@@ -103,6 +104,9 @@ def mail_send(request, selected_template, subscribers):
 
     # Update template count based on successful sends
     Template.objects.filter(id=selected_template.id).update(count=F('count') + len(email_summaries))
+
+    call_command('send_queued_messages')
+
 
     messages.success(request, f"{len(email_summaries)} emails queued for sending.")
     return redirect("home:email_sent_summary")
