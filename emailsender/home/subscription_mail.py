@@ -56,8 +56,8 @@ def mail_send(request, selected_template, subscribers):
             "unsubscribe_url": unsubscription,
             "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
 
-            "logo_url": request.build_absolute_uri(selected_template.logo.url), 
-            "image_url": request.build_absolute_uri(selected_template.image.url),
+            "logo_url": request.build_absolute_uri(selected_template.logo.url).replace("http://", "https://"), 
+            "image_url": request.build_absolute_uri(selected_template.image.url).replace("http://", "https://"),
 
             "subscriber": subscriber,
             "tracking_server": tracking_server,
