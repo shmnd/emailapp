@@ -44,10 +44,6 @@ def mail_send(request, selected_template, subscribers):
         # Generate Unsubscribe URL
         unsubscription = selected_template.unsubscribe_url or settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
         
-        # print("Logo URL:", request.build_absolute_uri(selected_template.logo.url) if selected_template.logo else "No Logo Found")
-        # print("Image URL:", request.build_absolute_uri(selected_template.image.url) if selected_template.image else "No Image Found")
-
-
         # Prepare context
         context = {
             "subject": subject,
@@ -60,16 +56,8 @@ def mail_send(request, selected_template, subscribers):
             "unsubscribe_url": unsubscription,
             "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
 
-            "logo_url": request.build_absolute_uri(selected_template.logo.url).replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
-
-            "image_url": request.build_absolute_uri(selected_template.image.url).replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
-
-
-            # "logo_url": "http://email.arolus.com" + selected_template.logo.url if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
-            # "image_url": "http://email.arolus.com" + selected_template.image.url if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
-
-            # "logo_url":selected_template.logo,
-            # "image_url": selected_template.image,
+            "logo_url": request.build_absolute_uri(selected_template.logo.url), 
+            "image_url": request.build_absolute_uri(selected_template.image.url),
 
             "subscriber": subscriber,
             "tracking_server": tracking_server,
@@ -77,8 +65,12 @@ def mail_send(request, selected_template, subscribers):
         }
 
 
-        # print("Generated Logo URL:", selected_template.logo.url)
-        # print("Generated Image URL:", selected_template.image.url)
+        # print(request.build_absolute_uri(selected_template.logo.url),'logooooooooo')#,#.replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
+        # print(request.build_absolute_uri(selected_template.image.url),'imageeeeeeeee')#.replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
+
+        # print("Generated Logo URL:", context["logo_url"])
+        # print("Generated Image URL:", context["image_url"])
+
 
         # Render HTML content
         html_content = render_to_string("email_template/template1.html", context)

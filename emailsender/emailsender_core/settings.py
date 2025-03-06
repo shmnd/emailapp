@@ -13,6 +13,8 @@ import os,dj_database_url,warnings,ast
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from decouple import config
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -39,7 +41,8 @@ if not SECRET_KEY:
     warnings.warn("SECRET_KEY not configured, using a random temporary key.")
     SECRET_KEY = get_random_secret_key()
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['email.arolus.com', 'www.email.arolus.com', 'localhost', '127.0.0.1']
+
 
 # Application definition
 
@@ -205,12 +208,8 @@ MAILQUEUE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 
 
-# EMAIL_BACKEND = 'django_mail_queue.backends.EmailBackend'
-# EMAIL_BACKEND = 'django_mailqueue.backends.EmailBackend'
-# EMAIL_BACKEND = 'django-mail-queue.backends.MailQueueBackend'
-
-
-
 MAILQUEUE_CELERY = False  # Use True if integrating with Celery for distributed task management
 MAILQUEUE_QUEUE_UP = True
 MAILQUEUE_LIMIT = 50
+
+
