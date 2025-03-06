@@ -60,9 +60,9 @@ def mail_send(request, selected_template, subscribers):
             "unsubscribe_url": unsubscription,
             "privacy_policy_url": selected_template.privacy_policy_url or "https://www.medicos.app/termsandprivacy",
 
-            "logo_url": request.build_absolute_uri(selected_template.logo.url).replace("http://127.0.0.1:8000", "http://email.arolus.com"), #if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
+            "logo_url": request.build_absolute_uri(selected_template.logo.url).replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
 
-            "image_url": request.build_absolute_uri(selected_template.image.url).replace("http://127.0.0.1:8000", "http://email.arolus.com"), #if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
+            "image_url": request.build_absolute_uri(selected_template.image.url).replace("http://127.0.0.1:8000", "http://email.arolus.com") if selected_template.image else "https://www.medicoapps.org/static/images/Medical-Apps.jpg",
 
 
             # "logo_url": "http://email.arolus.com" + selected_template.logo.url if selected_template.logo else "https://www.medicoapps.org/static/images/logoo.png",
