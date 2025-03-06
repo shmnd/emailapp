@@ -66,19 +66,19 @@
     <div class="container">
         <!-- Logo -->
          
-        <div class="header">
+        {% comment %} <div class="header">
             {% if logo_url %}
                 <img src="{{ logo_url }}" alt="Company Logo" >
             {% endif %}
-        </div>
+        </div> {% endcomment %}
 
 
         <div class="content">
             <p>{{ email_body|safe }}</p>
             
-            {% if image_url %}
+            {% comment %} {% if image_url %}
                 <img src="{{ image_url }}" alt="Featured Image" class="email-image">
-            {% endif %}
+            {% endif %} {% endcomment %}
 
 
             <!-- Call to Action Button -->
