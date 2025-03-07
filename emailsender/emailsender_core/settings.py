@@ -65,7 +65,6 @@ THIRD_PARTY_APPS = [
     'tinymce',  
     'django_extensions',
     'corsheaders',
-    'mailqueue',
     
 ]
 
@@ -204,12 +203,16 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Allow credentials (if using authentication)
 CORS_ALLOW_CREDENTIALS = True
 
-MAILQUEUE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 
 
 
-MAILQUEUE_CELERY = False  # Use True if integrating with Celery for distributed task management
-MAILQUEUE_QUEUE_UP = True
-MAILQUEUE_LIMIT = 50
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
+# Optional: To track task status and results
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
 
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

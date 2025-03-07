@@ -286,7 +286,7 @@ def email_sent_summary(request):
     email_records = EmailSummery.objects.all().order_by('-id')
     
     if selected_template_id:
-        email_records = email_records.filter(template_names=selected_template_id)
+        email_records = email_records.filter(template_names=selected_template_id).order_by('-id')
 
     # unique_templates = EmailSummery.objects.values_list('template_names', flat=True).distinct()
 
