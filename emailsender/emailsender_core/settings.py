@@ -42,6 +42,7 @@ if not SECRET_KEY:
     SECRET_KEY = get_random_secret_key()
 
 ALLOWED_HOSTS = ['email.arolus.com', 'www.email.arolus.com', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['*']
 
 
 # Application definition

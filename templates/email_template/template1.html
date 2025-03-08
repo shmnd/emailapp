@@ -65,21 +65,20 @@
 
     <div class="container">
         <!-- Logo -->
-         
         <div class="header">
             {% if logo_url %}
-                <img src="{{ logo_url }}" alt="Company Logo" >
-            {% endif %}
-        </div> 
+                <img src="{{ logo_url }}" alt="Company Logo" style="display: block; margin: 0 auto; max-width: 100%;">
 
+            {% endif %}
+        </div>
 
         <div class="content">
             <p>{{ email_body|safe }}</p>
             
             {% if image_url %}
-                <img src="{{ image_url }}" alt="Featured Image" class="email-image">
+                <img src="{{ image_url }}" alt="Featured Image" class="email-image" style="display: block; margin: 20px 0; max-width: 100%;">
+                
             {% endif %}
-
 
             <!-- Call to Action Button -->
             {% if button_url %}

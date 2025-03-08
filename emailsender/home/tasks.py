@@ -60,8 +60,8 @@ def send_email_task(template_id, subscriber_ids, request_data):
             "contact_email": template.contact_email or "contact@example.com",
             "unsubscribe_url": unsubscription,
             "privacy_policy_url": template.privacy_policy_url or "https://www.example.com/privacy",
-            "logo_url": request_data.get("logo_url"),
-            "image_url": request_data.get("image_url"),
+            "logo_url":  request_data['logo_url'],
+            "image_url":  request_data['image_url'],
             "subscriber": subscriber,
             "tracking_server": tracking_server,
             "template_id": template.id
