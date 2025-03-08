@@ -12,6 +12,7 @@ debug.log
 /.vscode
 admin_generator.txt
 
+/emailsender/media
 
 # Ignore all migration files except __init__.py
 **/migrations/*.py
