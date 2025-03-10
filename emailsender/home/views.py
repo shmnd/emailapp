@@ -284,6 +284,7 @@ def email_sent_summary(request):
     selected_template_id = request.GET.get("template", "")
 
     email_records = EmailSummery.objects.all().order_by('-id')
+    email_records.delete()
     
     if selected_template_id:
         email_records = email_records.filter(template_names=selected_template_id).order_by('-id')
