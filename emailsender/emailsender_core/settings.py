@@ -13,27 +13,6 @@ import os,dj_database_url,warnings,ast
 from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from decouple import config
-import environ
-
-
-# Initialize environment variables
-env = environ.Env()
-environ.Env.read_env() 
-
-
-
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-EMAIL_HOST = env('EMAIL_HOSTS')  # Custom key as per your .env
-EMAIL_PORT = env.int('EMAIL_PORT', default=587)
-EMAIL_USE_TLS = env.bool('EMAIL_USE_TLSS', default=True)  # Custom key as per your .env
-EMAIL_USE_SSL = env.bool('EMAIL_USE_SSLS', default=False)  # Custom key as per your .env
-EMAIL_HOST_USER = env('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-RECIEVER_EMAIL = env('RECIEVER_EMAIL')
-EMAIL_DOMAIN  = env('EMAIL_DOMAIN')
-
-
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -188,19 +167,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 """ EMAIL CONFIGURATIONS"""
 
 
-# EMAIL_HOST_USER       = config('EMAIL_HOST_USER')
-# EMAIL_HOST_PASSWORD   = config('EMAIL_HOST_PASSWORD')
 
-# EMAIL_HOST            = config('EMAIL_HOSTS')
-# RECIEVER_EMAIL        = config('RECIEVER_EMAIL')
+EMAIL_HOST_USER       = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD   = config('EMAIL_HOST_PASSWORD')
 
-# EMAIL_DOMAIN          = config('EMAIL_DOMAIN')
-# EMAIL_PORT            = config('EMAIL_PORT')
+EMAIL_HOST            = config('EMAIL_HOSTS')
+RECIEVER_EMAIL        = config('RECIEVER_EMAIL')
 
-# EMAIL_USE_TLS         = config('EMAIL_USE_TLSS', default=False, cast=bool)
-# EMAIL_USE_SSL         = config('EMAIL_USE_SSLS', default=False, cast=bool)
+EMAIL_DOMAIN          = config('EMAIL_DOMAIN')
+EMAIL_PORT            = config('EMAIL_PORT')
 
-# DEFAULT_FROM_EMAIL    = config('DEFAULT_FROM_EMAIL')
+EMAIL_USE_TLS         = config('EMAIL_USE_TLSS', default=False, cast=bool)
+EMAIL_USE_SSL         = config('EMAIL_USE_SSLS', default=False, cast=bool)
+
+DEFAULT_FROM_EMAIL    = config('DEFAULT_FROM_EMAIL')
 
 TRACKING_SERVER       = config('TRACKING_SERVER', default=None)
 UNSUBSCRIPTION_PATH   = config('UNSUBSCRIPTION_PATH', default='/unsubscribe/')
@@ -243,7 +223,6 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 SECURE_SSL_REDIRECT=False
 SESSION_COOKIE_SECURE=False
 CSRF_COOKIE_SECURE=False
-
 
 
 
