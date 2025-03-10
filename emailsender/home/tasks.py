@@ -102,7 +102,9 @@ def send_email_task(template_id, subscriber_ids, request_data):
             ))
                 
     # Bulk create email summaries
+    print("Preparing to save email summaries...")
     EmailSummery.objects.bulk_create(email_summaries)
+    print("Email summaries saved successfully!")
 
     # Update template count based on successful sends
     Template.objects.filter(id=template.id).update(count=F('count') + len(email_summaries))
