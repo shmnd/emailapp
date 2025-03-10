@@ -71,24 +71,36 @@ def send_email_task(template_id, subscriber_ids, request_data):
         html_content = render_to_string("email_template/template1.html", context)
 
         # Create and send MailerMessage object directly
-        send_mail(
-            subject,
-            strip_tags(html_content),
-            settings.DEFAULT_FROM_EMAIL,
-            [subscriber_email],
-            html_message=html_content
-        )
+        try:
+            send_mail(
+                subject,
+                strip_tags(html_content),
+                settings.DEFAULT_FROM_EMAIL,
+                [subscriber_email],
+                html_message=html_content
+            )
 
-        # Record email summary
-        email_summaries.append(EmailSummery(
-            sended_emails=subscriber_email,
-            template_names=template.template_name,
-            status='Queued',
-            subscriber_id=subscriber,
-            template_id=template,
-            failure_reason=" - "
-        ))
+             # Record email summary as 'Sent' if successful
+            email_summaries.append(EmailSummery(
+                sended_emails=subscriber_email,
+                template_names=template.template_name,
+                status='Sent',  # ✅ Change status to 'Sent'
+                subscriber_id=subscriber,
+                template_id=template,
+                failure_reason=" - "
+            ))
 
+        except Exception as e:
+            # Record email summary as 'Failed' if there is an error
+            email_summaries.append(EmailSummery(
+                sended_emails=subscriber_email,
+                template_names=template.template_name,
+                status='Failed',  # ✅ Change status to 'Failed' if error
+                subscriber_id=subscriber,
+                template_id=template,
+                failure_reason=str(e)
+            ))
+                
     # Bulk create email summaries
     EmailSummery.objects.bulk_create(email_summaries)
 
