@@ -224,18 +224,4 @@ SESSION_COOKIE_SECURE=False
 CSRF_COOKIE_SECURE=False
 
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',  # Change to INFO to reduce verbosity
-        },
-    },
-}
+
