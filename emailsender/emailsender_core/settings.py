@@ -235,3 +235,7 @@ CACHES = {
         }
     }
 }
+
+
+CELERY_BROKER_HEARTBEAT = 120  # Default is 60, increase if needed
+CELERY_BROKER_CONNECTION_TIMEOUT = 120 
