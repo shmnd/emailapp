@@ -41,8 +41,7 @@ if not SECRET_KEY:
     warnings.warn("SECRET_KEY not configured, using a random temporary key.")
     SECRET_KEY = get_random_secret_key()
 
-ALLOWED_HOSTS = ['email.arolus.com', 'www.email.arolus.com', 'localhost', '127.0.0.1']
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['email.arolus.com', 'www.email.arolus.com', 'localhost', '127.0.0.1','54.161.198.110']
 
 
 # Application definition
