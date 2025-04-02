@@ -131,7 +131,6 @@
                 <tr>
                     <th>Name</th>
                     <th>Subject</th>
-                    <th>Body</th>
                     <th>Actions</th>
                     <th style="width: 14%;">Details</th>
                 </tr>
@@ -141,7 +140,6 @@
                     <tr>
                         <td>{{ template.template_name }}</td>
                         <td>{{ template.email_subject }}</td>
-                        <td>{{ template.email_body }}</td>
                         <td>
                             <a href="{% url 'home:template_view' template.id %}">View</a> | 
                             <a href="{% url 'home:template_update' template.id %}">Edit</a> | 
