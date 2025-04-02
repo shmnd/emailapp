@@ -59,6 +59,10 @@
             border-radius: 8px;
             margin: 20px 0;
         }
+
+        .ii a[href] {
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
@@ -82,10 +86,7 @@
 
             <!-- Call to Action Button -->
             {% if button_url %}
-                <a href="{{ button_url }}"
-                style="display:inline-block; padding:12px 24px; background-color:{{ button_color|default:'#007BFF' }}; color:#ffffff !important; border-radius:5px; text-decoration:none !important; font-size:16px; font-weight:bold; margin-top:20px;">
-                {{ button_text|default:"Learn More" }}
-                </a>
+                <a href="{{ button_url }}" class="cta-button">{{ button_text|default:"Learn More" }}</a>
             {% endif %}
 
             <p>If you have any questions, feel free to <a href="mailto:{{ contact_email|default:"abhishek@medicoapps.org" }}">contact us</a>.</p>
