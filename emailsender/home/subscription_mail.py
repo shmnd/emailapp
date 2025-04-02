@@ -10,8 +10,8 @@ def mail_send(request, selected_template, subscribers):
         return redirect('home:send_email')
 
     request_data = {
-        "logo_url": get_absolute_url(request,selected_template.logo.url), 
-        "image_url": get_absolute_url(request,selected_template.image.url),
+        "logo_url": get_absolute_url(request,selected_template.logo.url) if selected_template.logo else None, 
+        "image_url": get_absolute_url(request,selected_template.image.url) if selected_template.image else None,
 
     }
 

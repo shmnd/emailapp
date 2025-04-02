@@ -288,11 +288,11 @@ def email_sent_summary(request):
     if selected_template_id:
         email_records = email_records.filter(template_names=selected_template_id).order_by('-id')
 
-    # unique_templates = EmailSummery.objects.values_list('template_names', flat=True).distinct()
+    unique_templates = EmailSummery.objects.values_list('template_names', flat=True).distinct()
 
     return render(request, "admin/email/email_sent_summary.html", {
         'email_records': email_records,
-        # 'unique_templates': unique_templates,
+        'unique_templates': unique_templates,
         'selected_template_id': selected_template_id,
     })
 
