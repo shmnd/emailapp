@@ -9,7 +9,7 @@ from django.db.models import Count
 from django.utils.timezone import now
 from django.db import IntegrityError
 from django.http import HttpResponse
-
+from django.core.paginator import Paginator
 from home.serializers import CreateEnquiresSerializer
 from rest_framework import generics,status
 from emailsender_core.helpers.response import ResponseInfo
@@ -282,6 +282,7 @@ def email_sent_summary(request):
     Displays a summary of successfully sent emails and allows filtering by template.
     """
     selected_template_id = request.GET.get("template", "")
+    page_number = request.GET.get("page", 1)
 
     email_records = EmailSummery.objects.all().order_by('-id')
     
@@ -290,8 +291,11 @@ def email_sent_summary(request):
 
     unique_templates = EmailSummery.objects.values_list('template_names', flat=True).distinct()
 
+    paginator = Paginator(email_records, 200)
+    page_obj = paginator.get_page(page_number)
+
     return render(request, "admin/email/email_sent_summary.html", {
-        'email_records': email_records,
+        'email_records': page_obj,
         'unique_templates': unique_templates,
         'selected_template_id': selected_template_id,
     })

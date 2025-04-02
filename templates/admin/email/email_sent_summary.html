@@ -166,5 +166,21 @@
 
     </div>
 
+    <div style="margin-top: 20px;">
+        {% if email_records.has_other_pages %}
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                {% if email_records.has_previous %}
+                    <a href="?template={{ selected_template_id }}&page={{ email_records.previous_page_number }}" class="buttons">Previous</a>
+                {% endif %}
+    
+                <span>Page {{ email_records.number }} of {{ email_records.paginator.num_pages }}</span>
+    
+                {% if email_records.has_next %}
+                    <a href="?template={{ selected_template_id }}&page={{ email_records.next_page_number }}" class="buttons">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
 </body>
 </html>
