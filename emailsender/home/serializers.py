@@ -33,8 +33,3 @@ class CreateEnquiresSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
-
-class UnsubscriberEmailSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Subscriber
-        fields = ['email']

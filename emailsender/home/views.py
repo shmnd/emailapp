@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from django.db import IntegrityError
 from django.http import HttpResponse
 
-from home.serializers import CreateEnquiresSerializer,UnsubscriberEmailSerializers
+from home.serializers import CreateEnquiresSerializer
 from rest_framework import generics,status
 from emailsender_core.helpers.response import ResponseInfo
 from home.schema import EnquiryDetailsSchema
@@ -425,26 +425,35 @@ class EnquriryListApiView(generics.GenericAPIView):
 # Unsubscription Email api 
 
 class EmailUnsubscriptionApiView(generics.GenericAPIView):
-    serializer_class = UnsubscriberEmailSerializers
 
     def __init__(self, **kwargs):
         self.response_format = ResponseInfo().response
         super(EmailUnsubscriptionApiView,self).__init__(**kwargs)
 
 
-    def post(self,request):
+    def get(self,request):
         try:
 
-            email = request.data.get('email')
-            # email = decrypt_email(email)
-            # print(email,'emiallllllllll')
-            unsubscriber = Subscriber.objects.filter(email=email).update(is_unsubscribed=True)
-            unsubscriber.unsubscribed_at = now()
-            unsubscriber.save()
+            subscriber_id = request.GET.get('id')
+            if not subscriber_id:
+                return HttpResponse("Invalid unsubscribe link", status=400)
+            try:
+                subscriber = Subscriber.objects.filter(id=subscriber_id).first()
+                if not subscriber:
+                    self.response_format["status"] = False
+                    self.response_format["message"] = "Subscriber not found"
+                    return Response(self.response_format, status=status.HTTP_404_NOT_FOUND)
+                
+                subscriber.is_unsubscribed = True
+                subscriber.unsubscribed_at = now()
+                subscriber.save()
 
-            self.response_format["data"] = ""
-            self.response_format["message"] = 'You have successfully unsubscribed.'
-            return Response(self.response_format, status=status.HTTP_200_OK)  
+                return HttpResponse("✅ You have successfully unsubscribed. Thank you!", status=200)
+            except Exception as e:
+                self.response_format['status_code'] = status.HTTP_400_BAD_REQUEST
+                self.response_format['status'] = False
+                self.response_format['message'] = 'User not found :('
+                return Response(self.response_format, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             self.response_format['status_code'] = status.HTTP_500_INTERNAL_SERVER_ERROR
             self.response_format['status'] = False
