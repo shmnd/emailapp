@@ -47,8 +47,8 @@ def send_email_task(template_id, subscriber_ids, request_data):
         email_track = f'<img src="{tracking_server}/track-email/?email={subscriber_email}&subscriber_id={subscriber.id}&template_id={template.id}&subject={subject}&rand={rand}" width="1" height="1" style="display:none;">'
         
         # Generate Unsubscribe URL
-        unsubscription = template.unsubscribe_url or settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
-        
+        # unsubscription = template.unsubscribe_url or settings.UNSUBSCRIPTION_PATH.format(subscriber_email=subscriber_email)
+        unsubscription = f"http://email.arolus.com/unsubscribe-email/?id={subscriber.id}"
         # Prepare context
         context = {
             "subject": subject,
@@ -58,7 +58,7 @@ def send_email_task(template_id, subscriber_ids, request_data):
             "button_color": template.button_color or "#007BFF",
             "button_url": template.button_url or "#",
             "contact_email": template.contact_email or "abhishek@medicoapps.org",
-            "unsubscribe_url": unsubscription or f"http://127.0.0.1:8000/unsubscribe-email/?id={subscriber.id}",
+            "unsubscribe_url": unsubscription or f"http://email.arolus.com/unsubscribe-email/?id={subscriber.id}",
             "privacy_policy_url": template.privacy_policy_url or "https://medicoapps.org/privacy-policy/",
             "logo_url":  request_data['logo_url'],
             "image_url":  request_data['image_url'],
