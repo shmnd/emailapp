@@ -82,7 +82,8 @@
 
             <!-- Call to Action Button -->
             {% if button_url %}
-                <a href="{{ button_url }}" style="color: #ffffff" class="cta-button">{{ button_text|default:"Learn More" }}</a>
+                <a href="{{ button_url }}" 
+                style="color: #ffffff !important; text-decoration: none !important;" class="cta-button">{{ button_text|default:"Learn More" }}</a>
             {% endif %}
 
             <p>If you have any questions, feel free to <a href="mailto:{{ contact_email|default:"abhishek@medicoapps.org" }}">contact us</a>.</p>
