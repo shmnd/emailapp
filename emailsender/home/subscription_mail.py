@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from home.tasks import send_email_task
 from emailsender_core.helpers.utils import get_absolute_url
-from django.templatetags.static import static
 
 def mail_send(request, selected_template, subscribers):
     """Optimized mail sending in batches without Celery."""
@@ -10,10 +9,9 @@ def mail_send(request, selected_template, subscribers):
         messages.error(request, "No subscribers found.")
         return redirect('home:send_email')
     
-    default_logo = request.build_absolute_uri(static("assets/media/images/download.jpg"))
 
     request_data = {
-        "logo_url": get_absolute_url(request,selected_template.logo.url) if selected_template.logo else default_logo, 
+        "logo_url": get_absolute_url(request,selected_template.logo.url) if selected_template.logo else None, 
         "image_url": get_absolute_url(request,selected_template.image.url) if selected_template.image else None,
 
     }
