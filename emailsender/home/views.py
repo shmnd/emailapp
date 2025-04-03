@@ -139,14 +139,17 @@ def template_delete(request, pk):
 
 def subscriber_list(request):
     tag_filter = request.GET.get('tag')
+    page_number = request.GET.get("page", 1)
     if tag_filter:
         subscribers = Subscriber.objects.filter(tags=tag_filter)
     else:
         subscribers = Subscriber.objects.all().order_by('-id')
 
     tags = Tags.objects.all()
+    paginator = Paginator(subscribers, 200)
+    page_obj = paginator.get_page(page_number)
 
-    return render(request,'admin/users/users_listing.html',{'subscribers':subscribers,'tags':tags})
+    return render(request,'admin/users/users_listing.html',{'subscribers':page_obj,'tags':tags})
 
 
 # upload csv file

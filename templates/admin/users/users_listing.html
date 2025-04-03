@@ -166,5 +166,21 @@
         <!-- Home Link -->
     </div>
 
+    <div style="margin-top: 20px;">
+        {% if subscribers.has_other_pages %}
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                {% if subscribers.has_previous %}
+                    <a href="?template={{ selected_template_id }}&page={{ subscribers.previous_page_number }}" class="buttons">Previous</a>
+                {% endif %}
+    
+                <span>Page {{ subscribers.number }} of {{ subscribers.paginator.num_pages }}</span>
+    
+                {% if subscribers.has_next %}
+                    <a href="?template={{ selected_template_id }}&page={{ subscribers.next_page_number }}" class="buttons">Next</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
 </body>
 </html>
