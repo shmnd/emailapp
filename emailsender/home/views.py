@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from emailsender_core.helpers.pagination import RestPagination
 from rest_framework.permissions import IsAuthenticated
 from emailsender_core.helpers.bulk_email import decrypt_email
+from django.templatetags.static import static
 
 def subscribe_view(request):
     if request.method == 'POST':
@@ -257,6 +258,7 @@ def template_view(request, template_id):
 
     logo_url = selected_template.logo.url if selected_template.logo else None
     image_url = selected_template.image.url if selected_template.image else None
+    default_logo = request.build_absolute_uri(static("assets/media/images/download.jpg"))
 
     context = {
         "subject": subject,
@@ -268,8 +270,8 @@ def template_view(request, template_id):
         "contact_email": contact_email,
         "unsubscribe_url": unsubscribe_url,
         "privacy_policy_url": privacy_policy_url,
-        "logo_url": logo_url if logo_url else "Company Logo",
-        "image_url": image_url if image_url else "Company Image",
+        "logo_url": logo_url if logo_url else default_logo,
+        "image_url": image_url if image_url else None,
     }
 
 

@@ -185,8 +185,7 @@ TRACKING_SERVER       = config('TRACKING_SERVER', default=None)
 UNSUBSCRIPTION_PATH   = config('UNSUBSCRIPTION_PATH', default='/unsubscribe/')
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] if DEBUG else []
-
+STATICFILES_DIRS = [os.path.join(BASE_DIR, '..', 'static')] if DEBUG else []  
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
