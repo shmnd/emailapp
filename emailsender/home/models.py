@@ -44,7 +44,7 @@ class Template(AbstractDateFieldMix):
     button_color          = models.CharField(max_length=7, default="#007BFF",blank=True, null=True,  help_text="Hex color code for the button")
     button_url            = models.URLField(blank=True, null=True, help_text="URL the button redirects to")
     contact_email         = models.EmailField(blank=True, null=True,help_text="Support email address",default="abhishek@medicoapps.org")
-    unsubscribe_url       = models.URLField(blank=True, null=True,help_text="Unsubscribe link",default="http://email.arolus.com/unsubscribe-user/?id={subscriber.id}")
+    unsubscribe_url       = models.URLField(blank=True, null=True,help_text="Unsubscribe link",default="http://email.arolus.com/unsubscribe-email/?id={subscriber.id}")
     privacy_policy_url    = models.URLField(blank=True, null=True,help_text="Privacy policy link",default="https://medicoapps.org/privacy-policy/")
     image                 = models.ImageField(upload_to="email_logos/", blank=True, null=True, help_text="Image for body")
     count                 = models.PositiveIntegerField(blank=True, null=True,default=0) 

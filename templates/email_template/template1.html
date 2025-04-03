@@ -107,7 +107,10 @@
             <p>
                 {% if unsubscribe_url %}
                     <a href="{{ unsubscribe_url }}">Unsubscribe</a> |
+                {% else %} 
+                    <a href="http://127.0.0.1:8000/unsubscribe-email/?id={{ subscriber.id }}">Unsubscribe</a> |
                 {% endif %}
+                <h1>{{ unsubscribe_url }}</h1>
                 {% if privacy_policy_url %}
                     <a href="{{ privacy_policy_url }}">Privacy Policy</a>
                 {% endif %}

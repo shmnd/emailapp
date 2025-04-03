@@ -48,7 +48,7 @@ urlpatterns = [
     # api of enquiries
     path('create-enquiry/',CreateEnquiresApiView.as_view()),
     path('enquiry-list/',EnquriryListApiView.as_view()),
-    path('unsubscribe-user/',EmailUnsubscriptionApiView.as_view(),name='unsubscribe-user')
+    path('unsubscribe-email/',EmailUnsubscriptionApiView.as_view(),name='unsubscribe-email')
 
 ]
 
