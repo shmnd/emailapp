@@ -4,7 +4,7 @@ from home.views import (
     subscribe_view, tag_create, tag_delete, tag_update, tag_list, template_list,
     template_create, template_update, template_delete, subscriber_list, csv_upload,
     export_subscribers, send_email_view, template_view, track_email_open,
-    email_sent_summary, email_sent_summary_download,
+    email_sent_summary, email_sent_summary_download,ses_sns_handler,
     CreateEnquiresApiView,EnquriryListApiView,EmailUnsubscriptionApiView
 )
 
@@ -48,8 +48,10 @@ urlpatterns = [
     # api of enquiries
     path('create-enquiry/',CreateEnquiresApiView.as_view()),
     path('enquiry-list/',EnquriryListApiView.as_view()),
-    path('unsubscribe-email/',EmailUnsubscriptionApiView.as_view(),name='unsubscribe-email')
+    path('unsubscribe-email/',EmailUnsubscriptionApiView.as_view(),name='unsubscribe-email'),
 
+    # supressed email 
+    path("sns/ses-notifications/",ses_sns_handler, name="ses_sns_handler")
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

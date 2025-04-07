@@ -1,8 +1,10 @@
 import sys, os
+import json
+import requests
+import csv
 from django.shortcuts import render, redirect,get_object_or_404
 from home.forms import SubscribeForm,TagForm,TemplateForm
 from home.models import Subscriber,Tags,Template,EmailSummery,EmailOpenTracking,Customers
-import csv
 from django.contrib import messages
 from home.subscription_mail import mail_send
 from django.db.models import Count
@@ -17,6 +19,8 @@ from home.schema import EnquiryDetailsSchema
 from rest_framework.response import Response
 from emailsender_core.helpers.pagination import RestPagination
 from rest_framework.permissions import IsAuthenticated
+from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Q
 
 def subscribe_view(request):
     if request.method == 'POST':
@@ -228,14 +232,29 @@ def send_email_view(request):
         except Template.DoesNotExist:
             messages.error(request,'Selected template does not Exists')
             return redirect('home:send_email')
-            
-        if tag_ids:
-            subscribers = Subscriber.objects.filter(tags__id__in=tag_ids).distinct()
-        else:
-            subscribers = Subscriber.objects.all()
+        
+        if not tag_ids:
+            messages.error(request, "Please select at least one tag")
+            return redirect('home:send_email')     
+        
+        subscribers = Subscriber.objects.filter(tags__id__in=tag_ids).distinct()
 
         if not subscribers.exists():
             messages.error(request,'NO subscribers found on selected tags')
+            return redirect('home:send_email')
+        
+        # ❌ Exclude suppressed subscribers
+        subscribers = subscribers.exclude(
+            Q(bounced_email__isnull=False) |
+            Q(unsubscribed_email__isnull=False) |
+            Q(non_subscriber__isnull=False) |
+            Q(is_unsubscribed=True)
+        )
+
+        # print(subscribers,'supressed listssssssssssssssss')
+
+        if not subscribers.exists():
+            messages.error(request, 'All selected subscribers are suppressed (bounced/unsubscribed)')
             return redirect('home:send_email')
         
         mail_send(request,template,subscribers)
@@ -468,3 +487,50 @@ class EmailUnsubscriptionApiView(generics.GenericAPIView):
             self.response_format['status'] = False
             self.response_format['message'] = str(e)
             return Response(self.response_format, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# supression or complaints emails
+
+
+@csrf_exempt
+def ses_sns_handler(request):
+    if request.method == "POST":
+        payload = json.loads(request.body.decode("utf-8"))
+
+        # Confirm subscription
+        if payload.get("Type") == "SubscriptionConfirmation":
+            subscribe_url = payload["SubscribeURL"]
+            requests.get(subscribe_url)
+            return HttpResponse("Subscribed", status=200)
+
+        # Handle notifications
+        elif payload.get("Type") == "Notification":
+            message = json.loads(payload["Message"])
+            notification_type = message.get("notificationType")
+
+            if notification_type in ["Bounce", "Complaint"]:
+                recipients = []
+                if notification_type == "Bounce":
+                    recipients = message.get("bounce", {}).get("bouncedRecipients", [])
+                elif notification_type == "Complaint":
+                    recipients = message.get("complaint", {}).get("complainedRecipients", [])
+
+                for r in recipients:
+                    email = r.get("emailAddress")
+                    if not email:
+                        continue
+
+                    subscriber = Subscriber.objects.filter(email=email).first()
+                    if subscriber:
+                        if notification_type == "Bounce":
+                            subscriber.bounced_email = email
+                        elif notification_type == "Complaint":
+                            subscriber.unsubscribed_email = email
+                            subscriber.is_unsubscribed = True
+                        subscriber.save()
+                    else:
+                        # Add to non_subscriber if not found
+                        Subscriber.objects.create(non_subscriber=email)
+            return HttpResponse("Notification handled", status=200)
+
+    return HttpResponse("Invalid method", status=405)
