@@ -181,11 +181,14 @@ def csv_upload(request):
                 if email and email.endswith('.com'):
                     subscriber, created = Subscriber.objects.get_or_create(email=email)
                     subscriber.tags.add(tag)
+                # else:
+                #     messages.error(request,'Invalid Email Format')
+                #     continue
 
             messages.success(request, "CSV file uploaded successfully!")
         
         except Exception as e:
-            messages.error(request, f"Error processing CSV file: {str(e)}")
+            messages.error(request, f"Error processing CSV file: {'Invalid File format'}")
 
         return redirect("home:subscriber_list")
 
